@@ -10,16 +10,18 @@ from src.number_converter.types import CaseType, GenderType
     'number, gender, case, word',
     [
         (1, 'M', 'N', 'один'),
-        (1, 'F', 'N', 'одна'),
-        (1, 'N', 'N', 'одно'),
-        (1, 'F', 'P', 'одной'),
+        (1, 'F', 'G', 'одной'),
+        (1, 'N', 'D', 'одному'),
+        (5, 'M', 'A', 'пять'),
+        (6, 'F', 'I', 'шестью'),
+        (7, 'N', 'P', 'семи'),
     ],
 )
-def test_convert_simple_number(
+def test_convert_prime_number(
     number: int,
     gender: GenderType,
     case: CaseType,
     word: str,
 ) -> None:
-    """Test the simple number converting."""
+    """Test the prime number converting."""
     assert convert_number(number, gender, case) == word
