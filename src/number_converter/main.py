@@ -11,7 +11,7 @@ class NumberConverter:
         self,
         gender: GenderType,
         case: CaseType,
-        number_mapping: dict[int, Case] = numbers.simple_numbers,
+        number_mapping: dict[int, Case] = numbers.prime_numbers,
     ) -> None:
         """Construct the converter."""
         self._gender = gender
@@ -20,9 +20,9 @@ class NumberConverter:
 
     def get_text(self, number: int) -> str:
         """Get the text representation of number."""
-        case = self._number_mapping.get(number)
-        gender = getattr(case, CASES[self._case])
-        word: str = getattr(gender, GENDERS[self._gender])
+        cases = self._number_mapping.get(number)
+        genders = getattr(cases, CASES[self._case])
+        word: str = getattr(genders, GENDERS[self._gender])
         return word
 
 

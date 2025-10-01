@@ -3,7 +3,7 @@
 from typing import Literal, NamedTuple
 
 # The function accepts gender and case aliases
-# to convert a number to a word.
+# to convert a number to a text.
 GenderType = Literal['M', 'F', 'N']
 CaseType = Literal['N', 'G', 'D', 'A', 'I', 'P']
 
