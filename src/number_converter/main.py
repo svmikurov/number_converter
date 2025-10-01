@@ -15,7 +15,7 @@ class NumberConverter:
         self,
         gender: GenderType,
         case: CaseType,
-        number_mapping: dict[int, Case] = numbers.prime_numbers,
+        number_mapping: dict[int, Case] = numbers.prime_numerals,
     ) -> None:
         """Construct the converter."""
         self._gender = self._set_gender(gender)

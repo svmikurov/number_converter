@@ -1,4 +1,4 @@
-"""Test a simple numbers converting."""
+"""Test the convert to prime numerals."""
 
 import pytest
 
@@ -17,11 +17,11 @@ from src.number_converter.types import CaseType, GenderType
         (7, 'N', 'P', 'семи'),
     ],
 )
-def test_convert_prime_number(
+def test_convert_prime_numerals(
     number: int,
     gender: GenderType,
     case: CaseType,
     word: str,
 ) -> None:
-    """Test the prime number converting."""
+    """Test the convert to prime numerals."""
     assert convert_number(number, gender, case) == word

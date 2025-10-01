@@ -2,7 +2,7 @@
 
 from .types import Case, Gender
 
-prime_numbers: dict[int, Case] = {
+prime_numerals: dict[int, Case] = {
     0: Case('ноль', 'ноля', 'нолю', 'ноль', 'нолем', 'ноле'),
     1: Case(
         Gender('один', 'одна', 'одно'),
