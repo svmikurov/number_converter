@@ -33,9 +33,9 @@ class Gender(NamedTuple):
 class Case(NamedTuple):
     """Declension of number by case."""
 
-    nominative: Gender
-    genitive: Gender
-    dative: Gender
-    accusative: Gender
-    instrumental: Gender
-    prepositional: Gender
+    nominative: Gender | str
+    genitive: Gender | str
+    dative: Gender | str
+    accusative: Gender | str
+    instrumental: Gender | str
+    prepositional: Gender | str

@@ -25,9 +25,11 @@ class NumberConverter:
     def get_text(self, number: int) -> str:
         """Get the text representation of number."""
         cases = self._number_mapping.get(number)
-        genders = getattr(cases, self._case)
-        word = getattr(genders, self._gender)
-        return str(word)
+        case = getattr(cases, self._case)
+        try:
+            return str(getattr(case, self._gender))
+        except AttributeError:
+            return str(case)
 
     def _set_gender(self, value: GenderType) -> str:
         try:
