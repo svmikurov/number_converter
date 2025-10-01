@@ -2,7 +2,7 @@
 
 from .types import Case, Gender
 
-prime_numerals: dict[int, Case] = {
+prime_num: dict[int, Case] = {
     0: Case('ноль', 'ноля', 'нолю', 'ноль', 'нолем', 'ноле'),
     1: Case(
         Gender('один', 'одна', 'одно'),
@@ -141,3 +141,27 @@ prime_numerals: dict[int, Case] = {
         'ста',
     ),
 }
+
+
+def _create_tens(number: int) -> Case:
+    """Create a declension of the numeral denoting tens."""
+    return Case(
+        str(prime_num[number].nominative) + 'десят',
+        str(prime_num[number].genitive) + 'десяти',
+        str(prime_num[number].dative) + 'десяти',
+        str(prime_num[number].accusative) + 'десят',
+        str(prime_num[number].instrumental) + 'десятью',
+        str(prime_num[number].prepositional) + 'десяти',
+    )
+
+
+complex_num_tens: dict[int, Case] = {
+    50: _create_tens(5),
+    60: _create_tens(6),
+    70: _create_tens(7),
+    80: _create_tens(8),
+}
+
+complex_num_hundreds: dict[int, Case] = {}
+
+numerals = prime_num | complex_num_tens
