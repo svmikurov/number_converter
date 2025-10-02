@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 MAX_NUMBER = 999_999_999_999
 
+THOUSAND_FACTOR = 1_000
 HUNDRED_FACTOR = 100
 TEN_FACTOR = 10
 LAST_DIGIT_DEVISOR = 10
@@ -71,46 +72,36 @@ def _validate_number(number: int) -> None:
         raise ValueError(msg)
 
 
-def _get_count_cycles(number: int) -> int:
-    """Get count of cycles by number length.
+def _get_hundreds_numeral(converter: NumberConverterABC, number: int) -> str:
+    numerals: list[str] = []
 
-    Example:
-    -------
-        >>> _get_count_cycles(444)
-        1
-        >>> _get_count_cycles(4_444)
-        2
+    if hundreds := number // HUNDRED_FACTOR % LAST_DIGIT_DEVISOR:
+        numerals.append(converter.get_text(hundreds * HUNDRED_FACTOR))
 
-    """
-    digit_count_on_cycle = 3
-    return int(int(len(str(number)) - 1) // digit_count_on_cycle) + 1
+    if tens := number // TEN_FACTOR % LAST_DIGIT_DEVISOR:
+        if tens == 1:
+            numerals.append(converter.get_text(number % HUNDRED_FACTOR))
+            return ' '.join(numerals)
+        else:
+            numerals.append(converter.get_text(tens * TEN_FACTOR))
+
+    if unit := number % LAST_DIGIT_DEVISOR:
+        numerals.append(converter.get_text(unit))
+
+    return ' '.join(numerals)
 
 
 def convert_number(number: int, gender: GenderType, case: CaseType) -> str:
     """Return the word representation of number."""
     _validate_number(number)
+    number_ = number
     converter = NumberConverter(gender, case)
-    count_cycles = _get_count_cycles(number)
     numeral_parts: list[str] = []
 
-    for _ in range(count_cycles):
-        if hundreds_digit := number // HUNDRED_FACTOR % LAST_DIGIT_DEVISOR:
-            numeral_parts.append(
-                converter.get_text(hundreds_digit * HUNDRED_FACTOR)
-            )
-
-        if tens_digit := number // TEN_FACTOR % LAST_DIGIT_DEVISOR:
-            if tens_digit == 1:
-                numeral_parts.append(
-                    converter.get_text(number % HUNDRED_FACTOR)
-                )
-                continue
-            else:
-                numeral_parts.append(
-                    converter.get_text(tens_digit * TEN_FACTOR)
-                )
-
-        if units_digit := number % LAST_DIGIT_DEVISOR:
-            numeral_parts.append(converter.get_text(units_digit))
+    while number_:
+        number_part = number_ % THOUSAND_FACTOR
+        numeral_part = _get_hundreds_numeral(converter, number_part)
+        numeral_parts.insert(0, numeral_part)
+        number_ = number_ // THOUSAND_FACTOR
 
     return ' '.join(numeral_parts)
