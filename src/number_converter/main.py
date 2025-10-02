@@ -3,6 +3,7 @@
 import logging
 
 from . import numbers
+from .base import NumberConverterABC
 from .types import CASES, GENDERS, Case, CaseType, Gender, GenderType
 
 log = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ TEN_FACTOR = 10
 LAST_DIGIT_DEVISOR = 10
 
 
-class NumberConverter:
+class NumberConverter(NumberConverterABC):
     """The converter of integer to numeral."""
 
     def __init__(
