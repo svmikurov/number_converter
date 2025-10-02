@@ -9,6 +9,10 @@ log = logging.getLogger(__name__)
 
 MAX_NUMBER = 999_999_999_999
 
+HUNDRED_FACTOR = 100
+TEN_FACTOR = 10
+LAST_DIGIT_DEVISOR = 10
+
 
 class NumberConverter:
     """The converter of integer to numeral."""
@@ -70,4 +74,17 @@ def convert_number(number: int, gender: GenderType, case: CaseType) -> str:
     """Return the word representation of number."""
     _validate_number(number)
     converter = NumberConverter(gender, case)
-    return converter.get_text(number)
+    numeral_parts: list[str] = []
+
+    if hundreds_digit := number // HUNDRED_FACTOR % LAST_DIGIT_DEVISOR:
+        numeral_parts.append(
+            converter.get_text(hundreds_digit * HUNDRED_FACTOR)
+        )
+
+    if tens_digit := number // TEN_FACTOR % LAST_DIGIT_DEVISOR:
+        numeral_parts.append(converter.get_text(tens_digit * TEN_FACTOR))
+
+    if units_digit := number % LAST_DIGIT_DEVISOR:
+        numeral_parts.append(converter.get_text(units_digit))
+
+    return ' '.join(numeral_parts)
