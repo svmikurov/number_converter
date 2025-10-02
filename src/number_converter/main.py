@@ -3,13 +3,15 @@
 import logging
 
 from . import numbers
-from .types import CASES, GENDERS, Case, CaseType, GenderType
+from .types import CASES, GENDERS, Case, CaseType, Gender, GenderType
 
 log = logging.getLogger(__name__)
 
+MAX_NUMBER = 999_999_999_999
+
 
 class NumberConverter:
-    """The converter of integer to text in words."""
+    """The converter of integer to numeral."""
 
     def __init__(
         self,
@@ -25,7 +27,7 @@ class NumberConverter:
     def get_text(self, number: int) -> str:
         """Get the text representation of number."""
         cases = self._number_mapping.get(number)
-        case = getattr(cases, self._case)
+        case: Gender | str = getattr(cases, self._case)
         try:
             return str(getattr(case, self._gender))
         except AttributeError:
@@ -52,7 +54,20 @@ class NumberConverter:
             raise
 
 
+def _validate_number(number: int) -> None:
+    if number < 0 and number > MAX_NUMBER:
+        msg = f'Error number converting, use 0 <= number < {MAX_NUMBER}'
+        log.error(msg)
+        raise ValueError(msg)
+
+    if not isinstance(number, int):
+        msg = f'Expected `int` number type, got `{type(number).__name__}`'
+        log.error(msg)
+        raise ValueError(msg)
+
+
 def convert_number(number: int, gender: GenderType, case: CaseType) -> str:
     """Return the word representation of number."""
+    _validate_number(number)
     converter = NumberConverter(gender, case)
     return converter.get_text(number)
