@@ -1,17 +1,40 @@
-"""Test convert number."""
+"""Testing exceptions raised when converting a number."""
 
 import pytest
 
 from src.number_converter.main import convert_number
+from src.number_converter.types import CaseType, GenderType
 
 
-def test_unexpected_case() -> None:
-    """Test unexpected case alias."""
+@pytest.mark.parametrize(
+    'number, gender, case',
+    [
+        (1, 'wrong case', 'N'),
+        (1, 'F', 'wrong gender'),
+    ],
+)
+def test_flag_validation(
+    number: int,
+    gender: GenderType,
+    case: CaseType,
+) -> None:
+    """Test the unexpected flag."""
     with pytest.raises(KeyError):
-        convert_number(1, 'wrong case', 'N')  # type: ignore[arg-type]
+        convert_number(number, gender, case)
 
 
-def test_unexpected_gender() -> None:
-    """Test unexpected gender alias."""
-    with pytest.raises(KeyError):
-        convert_number(1, 'F', 'wrong gender')  # type: ignore[arg-type]
+@pytest.mark.parametrize(
+    'number, gender, case',
+    [
+        (-1, 'F', 'N'),
+        (1000000000000, 'F', 'N'),
+    ],
+)
+def test_number_validation(
+    number: int,
+    gender: GenderType,
+    case: CaseType,
+) -> None:
+    """Test unexpected number value."""
+    with pytest.raises(ValueError):
+        convert_number(number, gender, case)
