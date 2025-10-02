@@ -55,7 +55,7 @@ class NumberConverter:
 
 
 def _validate_number(number: int) -> None:
-    if number < 0 and number > MAX_NUMBER:
+    if number < 0 or number > MAX_NUMBER:
         msg = f'Error number converting, use 0 <= number < {MAX_NUMBER}'
         log.error(msg)
         raise ValueError(msg)
