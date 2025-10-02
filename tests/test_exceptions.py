@@ -27,7 +27,7 @@ def test_flag_validation(
     'number, gender, case',
     [
         (-1, 'F', 'N'),
-        (1000000000000, 'F', 'N'),
+        (10**12, 'F', 'N'),
     ],
 )
 def test_number_validation(
