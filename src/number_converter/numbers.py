@@ -2,6 +2,9 @@
 
 from .types import Case, Gender
 
+TENS_CASES = Case('десят', 'десяти', 'десяти', 'десят', 'десятью', 'десяти')
+HUNDREDS_CASES = Case('сот', 'сот', 'стам', 'сот', 'стами', 'стах')
+
 prime_num: dict[int, Case] = {
     0: Case('ноль', 'ноля', 'нолю', 'ноль', 'нолем', 'ноле'),
     1: Case(
@@ -143,25 +146,56 @@ prime_num: dict[int, Case] = {
 }
 
 
-def _create_tens(number: int) -> Case:
-    """Create a declension of the numeral denoting tens."""
+def _create_complex(number: int, endings: Case) -> Case:
+    """Create the declension of a complex numeral."""
     return Case(
-        str(prime_num[number].nominative) + 'десят',
-        str(prime_num[number].genitive) + 'десяти',
-        str(prime_num[number].dative) + 'десяти',
-        str(prime_num[number].accusative) + 'десят',
-        str(prime_num[number].instrumental) + 'десятью',
-        str(prime_num[number].prepositional) + 'десяти',
+        str(prime_num[number].nominative) + str(endings.nominative),
+        str(prime_num[number].genitive) + str(endings.genitive),
+        str(prime_num[number].dative) + str(endings.dative),
+        str(prime_num[number].accusative) + str(endings.accusative),
+        str(prime_num[number].instrumental) + str(endings.instrumental),
+        str(prime_num[number].prepositional) + str(endings.prepositional),
     )
 
 
 complex_num_tens: dict[int, Case] = {
-    50: _create_tens(5),
-    60: _create_tens(6),
-    70: _create_tens(7),
-    80: _create_tens(8),
+    50: _create_complex(5, TENS_CASES),
+    60: _create_complex(6, TENS_CASES),
+    70: _create_complex(7, TENS_CASES),
+    80: _create_complex(8, TENS_CASES),
 }
 
-complex_num_hundreds: dict[int, Case] = {}
 
-numerals = prime_num | complex_num_tens
+complex_num_hundreds: dict[int, Case] = {
+    200: Case(
+        'двести',
+        'двухсот',
+        'двумстам',
+        'двести',
+        'двумястами',
+        'двухстах',
+    ),
+    300: Case(
+        'триста',
+        'трёхсот',
+        'трёмстам',
+        'триста',
+        'тремястами',
+        'трёхсот',
+    ),
+    400: Case(
+        'четыреста',
+        'четырёхсот',
+        'четырёмстам',
+        'четыреста',
+        'четырьмястами',
+        'четырёхстах',
+    ),
+    500: _create_complex(5, HUNDREDS_CASES),
+    600: _create_complex(6, HUNDREDS_CASES),
+    700: _create_complex(7, HUNDREDS_CASES),
+    800: _create_complex(8, HUNDREDS_CASES),
+    900: _create_complex(9, HUNDREDS_CASES),
+}
+
+numerals = prime_num | complex_num_tens | complex_num_hundreds
