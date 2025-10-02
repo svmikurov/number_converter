@@ -1,8 +1,11 @@
-name: CI
-on: push
+name: Linter
+
+on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
       - name: Install Python
@@ -13,6 +16,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ruff
-      # Update output format to enable automatic inline annotations.
       - name: Run Ruff
         run: ruff check --output-format=github .
