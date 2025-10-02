@@ -22,6 +22,8 @@ HAVE_NO_GENDER = 'M'
         (5, HAVE_NO_GENDER, 'A', 'пять'),
         (6, HAVE_NO_GENDER, 'I', 'шестью'),
         (7, HAVE_NO_GENDER, 'P', 'семи'),
+        (10, HAVE_NO_GENDER, 'N', 'десять'),
+        (19, HAVE_NO_GENDER, 'N', 'девятнадцать'),
         (20, HAVE_NO_GENDER, 'N', 'двадцать'),
         (22, 'F', 'N', 'двадцать две'),
         (50, HAVE_NO_GENDER, 'N', 'пятьдесят'),

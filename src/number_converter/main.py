@@ -70,21 +70,46 @@ def _validate_number(number: int) -> None:
         raise ValueError(msg)
 
 
+def _get_count_cycles(number: int) -> int:
+    """Get count of cycles by number length.
+
+    Example:
+    -------
+        >>> _get_count_cycles(444)
+        1
+        >>> _get_count_cycles(4_444)
+        2
+
+    """
+    digit_count_on_cycle = 3
+    return int(int(len(str(number)) - 1) // digit_count_on_cycle) + 1
+
+
 def convert_number(number: int, gender: GenderType, case: CaseType) -> str:
     """Return the word representation of number."""
     _validate_number(number)
     converter = NumberConverter(gender, case)
+    count_cycles = _get_count_cycles(number)
     numeral_parts: list[str] = []
 
-    if hundreds_digit := number // HUNDRED_FACTOR % LAST_DIGIT_DEVISOR:
-        numeral_parts.append(
-            converter.get_text(hundreds_digit * HUNDRED_FACTOR)
-        )
+    for _ in range(count_cycles):
+        if hundreds_digit := number // HUNDRED_FACTOR % LAST_DIGIT_DEVISOR:
+            numeral_parts.append(
+                converter.get_text(hundreds_digit * HUNDRED_FACTOR)
+            )
 
-    if tens_digit := number // TEN_FACTOR % LAST_DIGIT_DEVISOR:
-        numeral_parts.append(converter.get_text(tens_digit * TEN_FACTOR))
+        if tens_digit := number // TEN_FACTOR % LAST_DIGIT_DEVISOR:
+            if tens_digit == 1:
+                numeral_parts.append(
+                    converter.get_text(number % HUNDRED_FACTOR)
+                )
+                continue
+            else:
+                numeral_parts.append(
+                    converter.get_text(tens_digit * TEN_FACTOR)
+                )
 
-    if units_digit := number % LAST_DIGIT_DEVISOR:
-        numeral_parts.append(converter.get_text(units_digit))
+        if units_digit := number % LAST_DIGIT_DEVISOR:
+            numeral_parts.append(converter.get_text(units_digit))
 
     return ' '.join(numeral_parts)
