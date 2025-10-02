@@ -196,6 +196,30 @@ complex_num_hundreds: dict[int, Case] = {
     700: _create_complex(7, HUNDREDS_CASES),
     800: _create_complex(8, HUNDREDS_CASES),
     900: _create_complex(9, HUNDREDS_CASES),
+    1_000: Case(
+        'тысяча',
+        'тысячи',
+        'тысяче',
+        'тысячу',
+        'тысячей',
+        'тысяче',
+    ),
+    1_000_000: Case(
+        'миллион',
+        'миллиона',
+        'миллиону',
+        'миллион',
+        'миллионом',
+        'миллионе',
+    ),
+    1_000_000_000: Case(
+        'миллиард',
+        'миллиарда',
+        'миллиарду',
+        'миллиард',
+        'миллиардом',
+        'миллиарде',
+    ),
 }
 
 numerals = prime_num | complex_num_tens | complex_num_hundreds
