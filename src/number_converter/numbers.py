@@ -1,6 +1,6 @@
 """Mapping of number with it text representation."""
 
-from .types import Case, Gender
+from .types import Case, Gender, ThousandGroup
 
 TENS_CASES = Case('десят', 'десяти', 'десяти', 'десят', 'десятью', 'десяти')
 HUNDREDS_CASES = Case('сот', 'сот', 'стам', 'сот', 'стами', 'стах')
@@ -196,14 +196,6 @@ complex_num_hundreds: dict[int, Case] = {
     700: _create_complex(7, HUNDREDS_CASES),
     800: _create_complex(8, HUNDREDS_CASES),
     900: _create_complex(9, HUNDREDS_CASES),
-    1_000: Case(
-        'тысяча',
-        'тысячи',
-        'тысяче',
-        'тысячу',
-        'тысячей',
-        'тысяче',
-    ),
     1_000_000: Case(
         'миллион',
         'миллиона',
@@ -221,5 +213,18 @@ complex_num_hundreds: dict[int, Case] = {
         'миллиарде',
     ),
 }
+
+thousand_cases: dict[ThousandGroup, Case] = {
+    ThousandGroup.FIRST: Case(
+        'тысяча', 'тысячи', 'тысяче', 'тысячу', 'тысячей', 'тысяче'
+    ),
+    ThousandGroup.UNITS: Case(
+        'тысячи', 'тысяч', 'тысячам', 'тысячи', 'тысячами', 'тысячах'
+    ),
+    ThousandGroup.OTHER: Case(
+        'тысяч', 'тысяч', 'тысячам', 'тысяч', 'тысячами', 'тысячах'
+    ),
+}
+
 
 numerals = prime_num | complex_num_tens | complex_num_hundreds
