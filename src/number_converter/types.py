@@ -1,5 +1,6 @@
 """Library types."""
 
+from enum import Enum
 from typing import Literal, NamedTuple
 
 # The function accepts gender and case aliases
@@ -39,3 +40,19 @@ class Case(NamedTuple):
     accusative: Gender | str
     instrumental: Gender | str
     prepositional: Gender | str
+
+
+class ThousandGroup(Enum):
+    """Enumeration of thousand case groups.
+
+    Enumerations contain the last digits of the number,
+    which affect the declension of the thousand.
+    """
+
+    FIRST = (1,)
+    UNITS = (2, 3, 4)
+    OTHER = tuple(range(5, 21))
+
+    def __contains__(self, item: object) -> bool:
+        """Return True if item is contained in the enumeration."""
+        return item in self.value
