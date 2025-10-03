@@ -146,12 +146,21 @@ class _PeriodConvertor(PeriodConvertorABC):
         unit = number % RANGE_TEN
 
         if tens in ThousandGroup.OTHER:
+            # Include: 5, ..., 20
+            # It is compared before units because it
+            # contains: 11, ..., 14
             return ThousandGroup.OTHER
-        elif unit in ThousandGroup.UNITS or tens in ThousandGroup.UNITS:
+
+        elif unit in ThousandGroup.UNITS:
+            # Include: 2, 3, 4, 22, 23, 24, 32, ...
             return ThousandGroup.UNITS
-        elif tens in ThousandGroup.FIRST:
+
+        elif unit in ThousandGroup.FIRST:
+            # Include: 1, 21, 31, ...
             return ThousandGroup.FIRST
+
         else:
+            # Include: 25, ..., 30, 35, ...
             return ThousandGroup.OTHER
 
 
@@ -171,8 +180,11 @@ def _convert_number(
 
     while number_:
         number_part = number_ % RANGE_THOUSAND
-        numeral_part = _get_hundreds_numerals(number_converter, number_part)
-        numeral_parts.insert(0, numeral_part)
+
+        if numeral_part := _get_hundreds_numerals(
+            number_converter, number_part
+        ):
+            numeral_parts.insert(0, numeral_part)
 
         number_period = RANGE_THOUSAND**part_count
 
@@ -180,7 +192,7 @@ def _convert_number(
             period_numeral = period_convertor.get_text(number_part, case)
             numeral_parts.insert(1, period_numeral)
 
-        number_ = number_ // RANGE_THOUSAND
+        number_ //= RANGE_THOUSAND
         part_count += 1
 
     return ' '.join(numeral_parts)
