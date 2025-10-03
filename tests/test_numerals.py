@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.number_converter.main import convert_number
+from src.number_converter import convert_number
 from src.number_converter.types import CaseType, GenderType
 
 HAVE_NO_GENDER = 'M'
