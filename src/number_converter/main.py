@@ -2,28 +2,36 @@
 
 import logging
 
-from . import numbers
-from .base import NumberConverterABC
-from .types import CASES, GENDERS, Case, CaseType, Gender, GenderType
+from .base import NumberConverterABC, PeriodConvertorABC
+from .types import (
+    CASES,
+    GENDERS,
+    Case,
+    CaseType,
+    Gender,
+    GenderType,
+    ThousandGroup,
+)
 
 log = logging.getLogger(__name__)
 
 MAX_NUMBER = 999_999_999_999
 
-THOUSAND_FACTOR = 1_000
-HUNDRED_FACTOR = 100
-TEN_FACTOR = 10
+RANGE_TEN = 10
+RANGE_HUNDRED = 100
+RANGE_THOUSAND = 1_000
+
 LAST_DIGIT_DEVISOR = 10
 
 
-class NumberConverter(NumberConverterABC):
+class _NumberConverter(NumberConverterABC):
     """The converter of integer to numeral."""
 
     def __init__(
         self,
         gender: GenderType,
         case: CaseType,
-        number_mapping: dict[int, Case] = numbers.numerals,
+        number_mapping: dict[int, Case],
     ) -> None:
         """Construct the converter."""
         self._gender = self._set_gender(gender)
@@ -72,18 +80,36 @@ def _validate_number(number: int) -> None:
         raise ValueError(msg)
 
 
-def _get_hundreds_numeral(converter: NumberConverterABC, number: int) -> str:
+def _get_hundreds_numerals(converter: NumberConverterABC, number: int) -> str:
+    """Get numerals in the thousand range.
+
+    >>> from .numbers import numerals
+    >>> converter = _NumberConverter('M', 'G', numerals)
+    >>> _get_hundreds_numerals(converter, 31)
+    'тридцати одного'
+    >>> converter = _NumberConverter('N', 'I', numerals)
+    >>> _get_hundreds_numerals(converter, 122)
+    'ста двадцатью двумя'
+    """
+    if max_number := RANGE_THOUSAND - 1 < number:
+        msg = (
+            f'The maximum allowed number value has been exceeded:'
+            f'{number} > {max_number}'
+        )
+        log.error(msg)
+        raise ValueError(msg)
+
     numerals: list[str] = []
 
-    if hundreds := number // HUNDRED_FACTOR % LAST_DIGIT_DEVISOR:
-        numerals.append(converter.get_text(hundreds * HUNDRED_FACTOR))
+    if hundreds := number // RANGE_HUNDRED % LAST_DIGIT_DEVISOR:
+        numerals.append(converter.get_text(hundreds * RANGE_HUNDRED))
 
-    if tens := number // TEN_FACTOR % LAST_DIGIT_DEVISOR:
+    if tens := number // RANGE_TEN % LAST_DIGIT_DEVISOR:
         if tens == 1:
-            numerals.append(converter.get_text(number % HUNDRED_FACTOR))
+            numerals.append(converter.get_text(number % RANGE_HUNDRED))
             return ' '.join(numerals)
         else:
-            numerals.append(converter.get_text(tens * TEN_FACTOR))
+            numerals.append(converter.get_text(tens * RANGE_TEN))
 
     if unit := number % LAST_DIGIT_DEVISOR:
         numerals.append(converter.get_text(unit))
@@ -91,17 +117,70 @@ def _get_hundreds_numeral(converter: NumberConverterABC, number: int) -> str:
     return ' '.join(numerals)
 
 
-def convert_number(number: int, gender: GenderType, case: CaseType) -> str:
+class _PeriodConvertor(PeriodConvertorABC):
+    """The converter of number period to numeral."""
+
+    def __init__(
+        self,
+        period_mapping: dict[ThousandGroup, Case],
+    ) -> None:
+        """Construct the convector."""
+        self._period_mapping = period_mapping
+
+    def get_text(self, number: int, case: CaseType) -> str:
+        """Get the number period numeral."""
+        thousand_group = self._get_thousand_group(number)
+        numeral_case = self._period_mapping[thousand_group]
+        numeral = getattr(numeral_case, CASES[case])
+
+        if isinstance(numeral, str):
+            return numeral
+        else:
+            msg = f'Expected `str` type, got {type(numeral).__name__}'
+            log.error(msg)
+            raise TypeError(msg)
+
+    @staticmethod
+    def _get_thousand_group(number: int) -> ThousandGroup:
+        tens = number % RANGE_HUNDRED
+        unit = number % RANGE_TEN
+
+        if tens in ThousandGroup.OTHER:
+            return ThousandGroup.OTHER
+        elif unit in ThousandGroup.UNITS or tens in ThousandGroup.UNITS:
+            return ThousandGroup.UNITS
+        elif tens in ThousandGroup.FIRST:
+            return ThousandGroup.FIRST
+        else:
+            return ThousandGroup.OTHER
+
+
+def _convert_number(
+    number: int,
+    gender: GenderType,
+    case: CaseType,
+    period_convertor: PeriodConvertorABC,
+    number_mapping: dict[int, Case],
+) -> str:
     """Return the word representation of number."""
     _validate_number(number)
     number_ = number
-    converter = NumberConverter(gender, case)
+    number_converter = _NumberConverter(gender, case, number_mapping)
+    part_count = 0
     numeral_parts: list[str] = []
 
     while number_:
-        number_part = number_ % THOUSAND_FACTOR
-        numeral_part = _get_hundreds_numeral(converter, number_part)
+        number_part = number_ % RANGE_THOUSAND
+        numeral_part = _get_hundreds_numerals(number_converter, number_part)
         numeral_parts.insert(0, numeral_part)
-        number_ = number_ // THOUSAND_FACTOR
+
+        number_period = RANGE_THOUSAND**part_count
+
+        if number_period == RANGE_THOUSAND:
+            period_numeral = period_convertor.get_text(number_part, case)
+            numeral_parts.insert(1, period_numeral)
+
+        number_ = number_ // RANGE_THOUSAND
+        part_count += 1
 
     return ' '.join(numeral_parts)
