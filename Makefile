@@ -12,7 +12,7 @@ mypy:
 
 # Pytest
 pytest:
-	pytest
+	pytest --doctest-modules
 
 # Combined checking
 check: format mypy pytest
