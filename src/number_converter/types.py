@@ -45,23 +45,23 @@ class Case(NamedTuple):
 class Factor(int, Enum):
     """Enumeration of number factors for numeral conversion."""
 
-    ONE = 1
-    TEN = 10
-    HUNDRED = 10**2
-    THOUSAND = 10**3
-    MILLION = 10**6
-    BILLION = 10**9
+    UNITS = 1
+    TENS = 10
+    HUNDREDS = 10**2
+    THOUSANDS = 10**3
+    MILLIONS = 10**6
+    BILLIONS = 10**9
 
     @property
     def gender(self) -> GenderType:
         """Get grammatical gender of the factor name."""
         genders: dict[Factor, GenderType] = {
-            Factor.ONE: 'M',
-            Factor.TEN: 'M',
-            Factor.HUNDRED: 'M',
-            Factor.THOUSAND: 'F',
-            Factor.MILLION: 'M',
-            Factor.BILLION: 'M',
+            Factor.UNITS: 'M',
+            Factor.TENS: 'M',
+            Factor.HUNDREDS: 'M',
+            Factor.THOUSANDS: 'F',
+            Factor.MILLIONS: 'M',
+            Factor.BILLIONS: 'M',
         }
         return genders[self]
 
@@ -80,3 +80,27 @@ class CaseGroup(Enum):
     def __contains__(self, item: int) -> bool:
         """Return True if item is contained in the enumeration."""
         return item in self.value
+
+    @classmethod
+    def from_number(cls, number: int) -> 'CaseGroup':
+        """Get case group."""
+        tens = number % Factor.HUNDREDS
+        unit = number % Factor.TENS
+
+        if tens in CaseGroup.OTHER:
+            # Include: 5, ..., 20.
+            # Tens compared before units because it
+            # contains: 11, ..., 14.
+            return cls.OTHER
+
+        elif unit in CaseGroup.UNITS:
+            # Include: 2, 3, 4, 22, 23, 24, 32, 33, 34, etc.
+            return cls.UNITS
+
+        elif unit in CaseGroup.FIRST:
+            # Include: 1, 21, 31, etc.
+            return cls.FIRST
+
+        else:
+            # Include: 25, ..., 30, 35, ..., 40, etc.
+            return cls.OTHER

@@ -11,14 +11,14 @@ class NumberConverterABC(ABC):
     @abstractmethod
     def get_text(
         self,
-        number: int,
+        case_number: int,
         gender: GenderType,
         case: CaseType,
     ) -> str:
         """Get the text representation of number."""
 
 
-class PeriodConvertorABC(ABC):
+class FactorConverterABC(ABC):
     """The converter of number period to numeral."""
 
     @abstractmethod
@@ -26,6 +26,6 @@ class PeriodConvertorABC(ABC):
         self,
         number: int,
         case: CaseType,
-        range_name: Factor,
+        factor: Factor,
     ) -> str:
         """Get the number period numeral."""

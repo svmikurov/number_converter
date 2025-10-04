@@ -4,15 +4,11 @@ __all__ = ['convert_number']
 
 from functools import partial
 
-from . import numbers
-from .main import _convert_number, _NumberConverter, _PeriodConvertor
+from .cases import FACTOR_CASES, NUMERAL_CASES
+from .main import FactorConverter, NumberConverter, convert_number_
 
 convert_number = partial(
-    _convert_number,
-    number_converter=_NumberConverter(
-        number_mapping=numbers.numerals,
-    ),
-    range_converter=_PeriodConvertor(
-        period_mapping=numbers.period_cases,
-    ),
+    convert_number_,
+    number_converter=NumberConverter(NUMERAL_CASES),
+    factor_converter=FactorConverter(FACTOR_CASES),
 )
