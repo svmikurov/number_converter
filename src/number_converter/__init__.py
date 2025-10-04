@@ -9,8 +9,8 @@ from .main import _convert_number, _PeriodConvertor
 
 convert_number = partial(
     _convert_number,
-    period_convertor=_PeriodConvertor(
-        period_mapping=numbers.thousand_cases,
+    range_convertor=_PeriodConvertor(
+        period_mapping=numbers.period_cases,
     ),
     number_mapping=numbers.numerals,
 )
