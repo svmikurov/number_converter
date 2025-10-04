@@ -186,6 +186,10 @@ def _convert_number(
 ) -> str:
     """Return the word representation of number."""
     _validate_number(number)
+
+    if number == 0:
+        return number_converter.get_text(number, gender, case)
+
     number_ = number
     factor_exponent = -1
     numerals: list[str] = []
