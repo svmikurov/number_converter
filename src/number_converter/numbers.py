@@ -1,6 +1,6 @@
 """Mapping of number with it text representation."""
 
-from .types import Case, Gender, ThousandGroup
+from .types import Case, CaseGroup, Factor, Gender
 
 TENS_CASES = Case('десят', 'десяти', 'десяти', 'десят', 'десятью', 'десяти')
 HUNDREDS_CASES = Case('сот', 'сот', 'стам', 'сот', 'стами', 'стах')
@@ -214,16 +214,55 @@ complex_num_hundreds: dict[int, Case] = {
     ),
 }
 
-thousand_cases: dict[ThousandGroup, Case] = {
-    ThousandGroup.FIRST: Case(
-        'тысяча', 'тысячи', 'тысяче', 'тысячу', 'тысячей', 'тысяче'
+# fmt: off
+thousand_cases: dict[CaseGroup, Case] = {
+    CaseGroup.FIRST: Case(
+        'тысяча', 'тысячи', 'тысяче',
+        'тысячу', 'тысячей', 'тысяче',
     ),
-    ThousandGroup.UNITS: Case(
-        'тысячи', 'тысяч', 'тысячам', 'тысячи', 'тысячами', 'тысячах'
+    CaseGroup.UNITS: Case(
+        'тысячи', 'тысяч', 'тысячам',
+        'тысячи', 'тысячами', 'тысячах',
     ),
-    ThousandGroup.OTHER: Case(
-        'тысяч', 'тысяч', 'тысячам', 'тысяч', 'тысячами', 'тысячах'
+    CaseGroup.OTHER: Case(
+        'тысяч', 'тысяч', 'тысячам',
+        'тысяч', 'тысячами', 'тысячах',
     ),
+}
+million_cases: dict[CaseGroup, Case] = {
+    CaseGroup.FIRST: Case(
+        'миллион', 'миллиона', 'миллиону',
+        'миллион', 'миллионом', 'миллионе',
+    ),
+    CaseGroup.UNITS: Case(
+        'миллиона', 'миллионов', 'миллионам',
+        'миллиона', 'миллионами', 'миллионах',
+    ),
+    CaseGroup.OTHER: Case(
+        'миллионов', 'миллионов', 'миллионам',
+        'миллионов', 'миллионами', 'миллионах',
+    ),
+}
+billion_cases: dict[CaseGroup, Case] = {
+    CaseGroup.FIRST: Case(
+        'миллиард', 'миллиарда', 'миллиарду',
+        'миллиард', 'миллиардом', 'миллиарде',
+    ),
+    CaseGroup.UNITS: Case(
+        'миллиарда', 'миллиардов', 'миллиардам',
+        'миллиарда', 'миллиардами', 'миллиардах',
+    ),
+    CaseGroup.OTHER: Case(
+        'миллиардов', 'миллиардов', 'миллиардам',
+        'миллиардов', 'миллиардами', 'миллиардах',
+    ),
+}
+# fmt: on
+
+period_cases: dict[Factor, dict[CaseGroup, Case]] = {
+    Factor.THOUSAND: thousand_cases,
+    Factor.MILLION: million_cases,
+    Factor.BILLION: billion_cases,
 }
 
 
