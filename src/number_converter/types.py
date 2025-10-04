@@ -42,17 +42,27 @@ class Case(NamedTuple):
     prepositional: Gender | str
 
 
-class ThousandGroup(Enum):
-    """Enumeration of thousand case groups.
+class Factor(Enum):
+    """Enumeration of number factors for numeral conversion."""
+
+    TEN = 10
+    HUNDRED = 10**2
+    THOUSAND = 10**3
+    MILLION = 10**6
+    BILLION = 10**9
+
+
+class CaseGroup(Enum):
+    """Enumeration of grammatical cases.
 
     Enumerations contain the last digits of the number,
-    which affect the declension of the thousand.
+    which affect the declension.
     """
 
-    FIRST = (1,)
-    UNITS = (2, 3, 4)
-    OTHER = tuple(range(5, 21))
+    FIRST = {1}
+    UNITS = {2, 3, 4}
+    OTHER = set(range(5, 21))
 
-    def __contains__(self, item: object) -> bool:
+    def __contains__(self, item: int) -> bool:
         """Return True if item is contained in the enumeration."""
         return item in self.value
