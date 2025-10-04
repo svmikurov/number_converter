@@ -42,7 +42,7 @@ class Case(NamedTuple):
     prepositional: Gender | str
 
 
-class Factor(Enum):
+class Factor(int, Enum):
     """Enumeration of number factors for numeral conversion."""
 
     TEN = 10
