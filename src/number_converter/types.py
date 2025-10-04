@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Literal, NamedTuple
 
-# The function accepts gender and case aliases
+# The function accepts grammatical gender and case aliases
 # to convert a number to a text.
 GenderType = Literal['M', 'F', 'N']
 CaseType = Literal['N', 'G', 'D', 'A', 'I', 'P']
@@ -24,7 +24,7 @@ CASES: dict[CaseType, str] = {
 
 
 class Gender(NamedTuple):
-    """Gender presentation of number."""
+    """Grammatical gender presentation of number."""
 
     masculine: str
     feminine: str
@@ -45,11 +45,25 @@ class Case(NamedTuple):
 class Factor(int, Enum):
     """Enumeration of number factors for numeral conversion."""
 
+    ONE = 1
     TEN = 10
     HUNDRED = 10**2
     THOUSAND = 10**3
     MILLION = 10**6
     BILLION = 10**9
+
+    @property
+    def gender(self) -> GenderType:
+        """Get grammatical gender of the factor name."""
+        genders: dict[Factor, GenderType] = {
+            Factor.ONE: 'M',
+            Factor.TEN: 'M',
+            Factor.HUNDRED: 'M',
+            Factor.THOUSAND: 'F',
+            Factor.MILLION: 'M',
+            Factor.BILLION: 'M',
+        }
+        return genders[self]
 
 
 class CaseGroup(Enum):
