@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from .types import CaseType
+from .types import CaseType, Factor
 
 
 class NumberConverterABC(ABC):
@@ -17,5 +17,10 @@ class PeriodConvertorABC(ABC):
     """The converter of number period to numeral."""
 
     @abstractmethod
-    def get_text(self, number: int, case: CaseType) -> str:
+    def get_text(
+        self,
+        number: int,
+        case: CaseType,
+        range_name: Factor,
+    ) -> str:
         """Get the number period numeral."""
