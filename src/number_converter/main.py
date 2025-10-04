@@ -49,25 +49,21 @@ class _NumberConverter(NumberConverterABC):
 
     def __init__(
         self,
-        gender: GenderType,
-        case: CaseType,
         number_mapping: dict[int, Case],
     ) -> None:
         """Construct the converter."""
-        self._gender = self._set_gender(gender)
-        self._case = self._set_case(case)
         self._number_mapping = number_mapping
 
-    def get_text(self, number: int, case: CaseType | None = None) -> str:
+    def get_text(self, number: int, gender: GenderType, case: CaseType) -> str:
         """Get the text representation of number."""
         cases = self._number_mapping.get(number)
-        case_obj: Gender | str = getattr(cases, case or self._case)
+        case_obj: Gender | str = getattr(cases, self._get_case(case))
         try:
-            return str(getattr(case_obj, self._gender))
+            return str(getattr(case_obj, self._get_gender(gender)))
         except AttributeError:
             return str(case_obj)
 
-    def _set_gender(self, value: GenderType) -> str:
+    def _get_gender(self, value: GenderType) -> str:
         try:
             return GENDERS[value]
         except KeyError:
@@ -77,7 +73,7 @@ class _NumberConverter(NumberConverterABC):
             )
             raise
 
-    def _set_case(self, value: CaseType) -> str:
+    def _get_case(self, value: CaseType) -> str:
         try:
             return CASES[value]
         except KeyError:
@@ -100,15 +96,20 @@ def _validate_number(number: int) -> None:
         raise ValueError(msg)
 
 
-def _get_hundreds_numerals(converter: NumberConverterABC, number: int) -> str:
+def _get_hundreds_numerals(
+    converter: NumberConverterABC,
+    number: int,
+    gender: GenderType,
+    case: CaseType,
+) -> str:
     """Get numerals in the thousand range.
 
     >>> from .numbers import numerals
-    >>> converter = _NumberConverter('M', 'G', numerals)
-    >>> _get_hundreds_numerals(converter, 31)
+    >>> converter = _NumberConverter(numerals)
+    >>> _get_hundreds_numerals(converter, 31, 'M', 'G')
     'тридцати одного'
-    >>> converter = _NumberConverter('N', 'I', numerals)
-    >>> _get_hundreds_numerals(converter, 122)
+    >>> converter = _NumberConverter(numerals)
+    >>> _get_hundreds_numerals(converter, 122, 'N', 'I')
     'ста двадцатью двумя'
     """
     if max_number := Factor.THOUSAND - 1 < number:
@@ -122,17 +123,27 @@ def _get_hundreds_numerals(converter: NumberConverterABC, number: int) -> str:
     numerals: list[str] = []
 
     if hundreds := number // Factor.HUNDRED % LAST_DIGIT_DEVISOR:
-        numerals.append(converter.get_text(hundreds * Factor.HUNDRED))
+        numerals.append(
+            converter.get_text(
+                hundreds * Factor.HUNDRED,
+                gender,
+                case,
+            )
+        )
 
     if tens := number // Factor.TEN % LAST_DIGIT_DEVISOR:
         if tens == 1:
-            numerals.append(converter.get_text(number % Factor.HUNDRED))
+            numerals.append(
+                converter.get_text(number % Factor.HUNDRED, gender, case)
+            )
             return ' '.join(numerals)
         else:
-            numerals.append(converter.get_text(tens * Factor.TEN))
+            numerals.append(
+                converter.get_text(tens * Factor.TEN, gender, case)
+            )
 
     if unit := number % LAST_DIGIT_DEVISOR:
-        numerals.append(converter.get_text(unit))
+        numerals.append(converter.get_text(unit, gender, case))
 
     return ' '.join(numerals)
 
@@ -170,35 +181,36 @@ def _convert_number(
     number: int,
     gender: GenderType,
     case: CaseType,
+    number_converter: NumberConverterABC,
     range_convertor: PeriodConvertorABC,
-    number_mapping: dict[int, Case],
 ) -> str:
     """Return the word representation of number."""
     _validate_number(number)
     number_ = number
-    number_converter = _NumberConverter(gender, case, number_mapping)
-    range_exponent = -1
+    factor_exponent = -1
     numerals: list[str] = []
 
     while number_:
         digits = number_ % Factor.THOUSAND
         number_ //= Factor.THOUSAND
-        range_exponent += 1
+        factor_exponent += 1
+        factor = Factor(Factor.THOUSAND**factor_exponent)
 
         if not digits:
             continue
         else:
-            digits_numerals = _get_hundreds_numerals(number_converter, digits)
+            digits_numerals = _get_hundreds_numerals(
+                number_converter,
+                digits,
+                gender=gender
+                if factor != Factor.THOUSAND
+                else Factor.THOUSAND.gender,
+                case=case,
+            )
             numerals.insert(0, digits_numerals)
 
-        factor = Factor.THOUSAND**range_exponent
-
         if factor >= Factor.THOUSAND:
-            range_numeral = range_convertor.get_text(
-                digits,
-                case,
-                Factor(factor),
-            )
+            range_numeral = range_convertor.get_text(digits, case, factor)
             numerals.insert(1, range_numeral)
 
     return ' '.join(numerals)
