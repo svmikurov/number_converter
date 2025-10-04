@@ -18,16 +18,12 @@ log = logging.getLogger(__name__)
 
 MAX_NUMBER = 999_999_999_999
 
-RANGE_TEN = 10
-RANGE_HUNDRED = 100
-RANGE_THOUSAND = 1_000
-
 LAST_DIGIT_DEVISOR = 10
 
 
 def _get_case_group(number: int) -> CaseGroup:
-    tens = number % RANGE_HUNDRED
-    unit = number % RANGE_TEN
+    tens = number % Factor.HUNDRED
+    unit = number % Factor.TEN
 
     if tens in CaseGroup.OTHER:
         # Include: 5, ..., 20
@@ -115,7 +111,7 @@ def _get_hundreds_numerals(converter: NumberConverterABC, number: int) -> str:
     >>> _get_hundreds_numerals(converter, 122)
     'ста двадцатью двумя'
     """
-    if max_number := RANGE_THOUSAND - 1 < number:
+    if max_number := Factor.THOUSAND - 1 < number:
         msg = (
             f'The maximum allowed number value has been exceeded:'
             f'{number} > {max_number}'
@@ -125,15 +121,15 @@ def _get_hundreds_numerals(converter: NumberConverterABC, number: int) -> str:
 
     numerals: list[str] = []
 
-    if hundreds := number // RANGE_HUNDRED % LAST_DIGIT_DEVISOR:
-        numerals.append(converter.get_text(hundreds * RANGE_HUNDRED))
+    if hundreds := number // Factor.HUNDRED % LAST_DIGIT_DEVISOR:
+        numerals.append(converter.get_text(hundreds * Factor.HUNDRED))
 
-    if tens := number // RANGE_TEN % LAST_DIGIT_DEVISOR:
+    if tens := number // Factor.TEN % LAST_DIGIT_DEVISOR:
         if tens == 1:
-            numerals.append(converter.get_text(number % RANGE_HUNDRED))
+            numerals.append(converter.get_text(number % Factor.HUNDRED))
             return ' '.join(numerals)
         else:
-            numerals.append(converter.get_text(tens * RANGE_TEN))
+            numerals.append(converter.get_text(tens * Factor.TEN))
 
     if unit := number % LAST_DIGIT_DEVISOR:
         numerals.append(converter.get_text(unit))
@@ -185,8 +181,8 @@ def _convert_number(
     numerals: list[str] = []
 
     while number_:
-        digits = number_ % RANGE_THOUSAND
-        number_ //= RANGE_THOUSAND
+        digits = number_ % Factor.THOUSAND
+        number_ //= Factor.THOUSAND
         range_exponent += 1
 
         if not digits:
@@ -195,9 +191,9 @@ def _convert_number(
             digits_numerals = _get_hundreds_numerals(number_converter, digits)
             numerals.insert(0, digits_numerals)
 
-        factor = RANGE_THOUSAND**range_exponent
+        factor = Factor.THOUSAND**range_exponent
 
-        if factor >= RANGE_THOUSAND:
+        if factor >= Factor.THOUSAND:
             range_numeral = range_convertor.get_text(
                 digits,
                 case,
