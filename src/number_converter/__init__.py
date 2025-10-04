@@ -5,12 +5,14 @@ __all__ = ['convert_number']
 from functools import partial
 
 from . import numbers
-from .main import _convert_number, _PeriodConvertor
+from .main import _convert_number, _NumberConverter, _PeriodConvertor
 
 convert_number = partial(
     _convert_number,
+    number_converter=_NumberConverter(
+        number_mapping=numbers.numerals,
+    ),
     range_convertor=_PeriodConvertor(
         period_mapping=numbers.period_cases,
     ),
-    number_mapping=numbers.numerals,
 )
