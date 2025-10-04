@@ -12,7 +12,7 @@ convert_number = partial(
     number_converter=_NumberConverter(
         number_mapping=numbers.numerals,
     ),
-    range_convertor=_PeriodConvertor(
+    range_converter=_PeriodConvertor(
         period_mapping=numbers.period_cases,
     ),
 )

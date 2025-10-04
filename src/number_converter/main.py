@@ -182,7 +182,7 @@ def _convert_number(
     gender: GenderType,
     case: CaseType,
     number_converter: NumberConverterABC,
-    range_convertor: PeriodConvertorABC,
+    range_converter: PeriodConvertorABC,
 ) -> str:
     """Return the word representation of number."""
     _validate_number(number)
@@ -210,7 +210,7 @@ def _convert_number(
             numerals.insert(0, digits_numerals)
 
         if factor >= Factor.THOUSAND:
-            range_numeral = range_convertor.get_text(digits, case, factor)
+            range_numeral = range_converter.get_text(digits, case, factor)
             numerals.insert(1, range_numeral)
 
     return ' '.join(numerals)
