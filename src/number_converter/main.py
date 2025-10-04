@@ -7,10 +7,11 @@ from .types import (
     CASES,
     GENDERS,
     Case,
+    CaseGroup,
     CaseType,
+    Factor,
     Gender,
     GenderType,
-    ThousandGroup,
 )
 
 log = logging.getLogger(__name__)
@@ -22,6 +23,29 @@ RANGE_HUNDRED = 100
 RANGE_THOUSAND = 1_000
 
 LAST_DIGIT_DEVISOR = 10
+
+
+def _get_case_group(number: int) -> CaseGroup:
+    tens = number % RANGE_HUNDRED
+    unit = number % RANGE_TEN
+
+    if tens in CaseGroup.OTHER:
+        # Include: 5, ..., 20
+        # Tens compared before units because it
+        # contains: 11, ..., 14
+        return CaseGroup.OTHER
+
+    elif unit in CaseGroup.UNITS:
+        # Include: 2, 3, 4, 22, 23, 24, 32, 33, 34, etc
+        return CaseGroup.UNITS
+
+    elif unit in CaseGroup.FIRST:
+        # Include: 1, 21, 31, etc
+        return CaseGroup.FIRST
+
+    else:
+        # Include: 25, ..., 30, 35, ..., 40, etc
+        return CaseGroup.OTHER
 
 
 class _NumberConverter(NumberConverterABC):
@@ -38,14 +62,14 @@ class _NumberConverter(NumberConverterABC):
         self._case = self._set_case(case)
         self._number_mapping = number_mapping
 
-    def get_text(self, number: int) -> str:
+    def get_text(self, number: int, case: CaseType | None = None) -> str:
         """Get the text representation of number."""
         cases = self._number_mapping.get(number)
-        case: Gender | str = getattr(cases, self._case)
+        case_obj: Gender | str = getattr(cases, case or self._case)
         try:
-            return str(getattr(case, self._gender))
+            return str(getattr(case_obj, self._gender))
         except AttributeError:
-            return str(case)
+            return str(case_obj)
 
     def _set_gender(self, value: GenderType) -> str:
         try:
@@ -122,15 +146,20 @@ class _PeriodConvertor(PeriodConvertorABC):
 
     def __init__(
         self,
-        period_mapping: dict[ThousandGroup, Case],
+        period_mapping: dict[Factor, dict[CaseGroup, Case]],
     ) -> None:
         """Construct the convector."""
-        self._period_mapping = period_mapping
+        self._period = period_mapping
 
-    def get_text(self, number: int, case: CaseType) -> str:
+    def get_text(
+        self,
+        number: int,
+        case: CaseType,
+        range_name: Factor,
+    ) -> str:
         """Get the number period numeral."""
-        thousand_group = self._get_thousand_group(number)
-        numeral_case = self._period_mapping[thousand_group]
+        thousand_group = _get_case_group(number)
+        numeral_case = self._period[range_name][thousand_group]
         numeral = getattr(numeral_case, CASES[case])
 
         if isinstance(numeral, str):
@@ -140,59 +169,40 @@ class _PeriodConvertor(PeriodConvertorABC):
             log.error(msg)
             raise TypeError(msg)
 
-    @staticmethod
-    def _get_thousand_group(number: int) -> ThousandGroup:
-        tens = number % RANGE_HUNDRED
-        unit = number % RANGE_TEN
-
-        if tens in ThousandGroup.OTHER:
-            # Include: 5, ..., 20
-            # It is compared before units because it
-            # contains: 11, ..., 14
-            return ThousandGroup.OTHER
-
-        elif unit in ThousandGroup.UNITS:
-            # Include: 2, 3, 4, 22, 23, 24, 32, ...
-            return ThousandGroup.UNITS
-
-        elif unit in ThousandGroup.FIRST:
-            # Include: 1, 21, 31, ...
-            return ThousandGroup.FIRST
-
-        else:
-            # Include: 25, ..., 30, 35, ...
-            return ThousandGroup.OTHER
-
 
 def _convert_number(
     number: int,
     gender: GenderType,
     case: CaseType,
-    period_convertor: PeriodConvertorABC,
+    range_convertor: PeriodConvertorABC,
     number_mapping: dict[int, Case],
 ) -> str:
     """Return the word representation of number."""
     _validate_number(number)
     number_ = number
     number_converter = _NumberConverter(gender, case, number_mapping)
-    part_count = 0
-    numeral_parts: list[str] = []
+    range_exponent = -1
+    numerals: list[str] = []
 
     while number_:
-        number_part = number_ % RANGE_THOUSAND
-
-        if numeral_part := _get_hundreds_numerals(
-            number_converter, number_part
-        ):
-            numeral_parts.insert(0, numeral_part)
-
-        number_period = RANGE_THOUSAND**part_count
-
-        if number_period == RANGE_THOUSAND:
-            period_numeral = period_convertor.get_text(number_part, case)
-            numeral_parts.insert(1, period_numeral)
-
+        digits = number_ % RANGE_THOUSAND
         number_ //= RANGE_THOUSAND
-        part_count += 1
+        range_exponent += 1
 
-    return ' '.join(numeral_parts)
+        if not digits:
+            continue
+        else:
+            digits_numerals = _get_hundreds_numerals(number_converter, digits)
+            numerals.insert(0, digits_numerals)
+
+        factor = RANGE_THOUSAND**range_exponent
+
+        if factor >= RANGE_THOUSAND:
+            range_numeral = range_convertor.get_text(
+                digits,
+                case,
+                Factor(factor),
+            )
+            numerals.insert(1, range_numeral)
+
+    return ' '.join(numerals)
