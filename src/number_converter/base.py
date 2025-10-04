@@ -2,14 +2,19 @@
 
 from abc import ABC, abstractmethod
 
-from .types import CaseType, Factor
+from .types import CaseType, Factor, GenderType
 
 
 class NumberConverterABC(ABC):
     """The converter of integer to numeral."""
 
     @abstractmethod
-    def get_text(self, number: int) -> str:
+    def get_text(
+        self,
+        number: int,
+        gender: GenderType,
+        case: CaseType,
+    ) -> str:
         """Get the text representation of number."""
 
 
