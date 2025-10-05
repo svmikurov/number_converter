@@ -3,8 +3,8 @@
 ### Example
 ```
 >>> from number_converter import convert_number
->>> convert_number(1, 'F', 'P')
-'одной'
+>>> convert_number(11_001_001_001, 'N', 'N')
+'одиннадцать миллиардов один миллион одну тысячу одно'
 ```
 
 ### Flags
