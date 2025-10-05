@@ -130,28 +130,25 @@ def convert_number_(
         return number_converter.get_text(number, gender, case)
 
     number_ = number
-    factor_exponent_counter = 0
+    factor_exponent = 0
     numerals: list[str] = []
 
     while number_:
-        # The number is converted by parts
+        # The number is determines by parts
         # that are multiples of a thousand.
         digits = number_ % Factor.THOUSANDS
         number_ //= Factor.THOUSANDS
-        factor = Factor(Factor.THOUSANDS**factor_exponent_counter)
+        factor = Factor(Factor.THOUSANDS**factor_exponent)
 
         if not digits:
-            factor_exponent_counter += 1
+            factor_exponent += 1
             continue
         else:
-            # The factor determines the gender of the multiplicand.
-            current_gender = (
-                gender if factor < Factor.THOUSANDS else factor.gender
-            )
             digits_numeral = get_numeral(
                 number_converter,
                 digits,
-                current_gender,
+                # The factor determines the gender of the multiplicand.
+                gender if factor < Factor.THOUSANDS else factor.gender,
                 case,
             )
             numerals.insert(0, digits_numeral)
@@ -161,6 +158,6 @@ def convert_number_(
             factor_numeral = factor_converter.get_text(digits, case, factor)
             numerals.insert(1, factor_numeral)
 
-        factor_exponent_counter += 1
+        factor_exponent += 1
 
     return ' '.join(numerals)
