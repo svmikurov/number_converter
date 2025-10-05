@@ -144,12 +144,9 @@ def convert_number_(
             factor_exponent_counter += 1
             continue
         else:
+            # The factor determines the gender of the multiplicand.
             current_gender = (
-                # The thousands factor determines
-                # the gender of the multiplicand.
-                gender
-                if factor is not Factor.THOUSANDS
-                else Factor.THOUSANDS.gender
+                gender if factor < Factor.THOUSANDS else factor.gender
             )
             digits_numeral = get_numeral(
                 number_converter,
