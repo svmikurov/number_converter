@@ -1,4 +1,6 @@
-# Converting an integer to text in words
+# Converting an integer to a string in words
+
+In any case and any gender.
 
 ### Example
 ```
