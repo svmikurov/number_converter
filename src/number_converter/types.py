@@ -77,9 +77,9 @@ class CaseGroup(Enum):
     UNITS = {2, 3, 4}
     OTHER = set(range(5, 21))
 
-    def __contains__(self, item: int) -> bool:
+    def __contains__(self, number: int) -> bool:
         """Return True if item is contained in the enumeration."""
-        return item in self.value
+        return number in self.value
 
     @classmethod
     def from_number(cls, number: int) -> 'CaseGroup':

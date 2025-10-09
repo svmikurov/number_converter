@@ -19,7 +19,7 @@ class NumberConverterABC(ABC):
 
 
 class FactorConverterABC(ABC):
-    """The converter of number period to numeral."""
+    """The converter of number factor to numeral."""
 
     @abstractmethod
     def get_text(
@@ -28,4 +28,4 @@ class FactorConverterABC(ABC):
         case: CaseType,
         factor: Factor,
     ) -> str:
-        """Get the number period numeral."""
+        """Get the number factor numeral."""

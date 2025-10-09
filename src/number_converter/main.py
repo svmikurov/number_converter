@@ -1,5 +1,7 @@
 """Converting an integer to numeral."""
 
+from typing import override
+
 from .base import FactorConverterABC, NumberConverterABC
 from .types import (
     CASES,
@@ -78,20 +80,60 @@ def get_numeral(
 
 
 class NumberConverter(NumberConverterABC):
-    """The converter of integer to numeral."""
+    """The converter of integer to numeral.
+
+    Example
+    -------
+    >>> from .cases import NUMERAL_CASES
+    >>> converter = NumberConverter(NUMERAL_CASES)
+    >>> converter.get_text(12, 'M', 'I')
+    'двенадцатью'
+    >>> converter.get_text(1, 'F', 'P')
+    'одной'
+
+    """
 
     def __init__(self, numeral_cases: dict[int, Case]) -> None:
         """Construct the converter."""
         self._numeral_cases = numeral_cases
 
+    @override
     def get_text(
         self,
         case_number: int,
         gender: GenderType,
         case: CaseType,
     ) -> str:
-        """Get the text representation of number."""
-        cases = self._numeral_cases[case_number]
+        """Get the text representation of number.
+
+        Parameters
+        ----------
+        case_number : `int`
+            A number that has a specific declension rule.
+        gender : `GenderType`
+            An abbreviation that determines the gender of a declension.
+        case : `CaseType`
+            An abbreviation that determines the case of a declension.
+
+        Returns
+        -------
+        `str`
+            Numeral. The textual representation of the number.
+
+        Raises
+        ------
+        ValueError
+            If case number has no a specific declension rule.
+
+        """
+        try:
+            cases = self._numeral_cases[case_number]
+        except KeyError as e:
+            raise ValueError(
+                f'Got unexpected case number, '
+                f'use {sorted(self._numeral_cases.keys())}'
+            ) from e
+
         case_obj: Gender | str = getattr(cases, CASES[case])
         try:
             return getattr(case_obj, GENDERS[gender])  # type: ignore[no-any-return]
@@ -100,7 +142,24 @@ class NumberConverter(NumberConverterABC):
 
 
 class FactorConverter(FactorConverterABC):
-    """The converter of number period to numeral."""
+    """The converter of number period to numeral.
+
+    Attributes
+    ----------
+    factor_cases : `dict[Factor, dict[CaseGroup, Case]]`
+        Mapping of factor enumeration instance with case groups.
+
+    Example
+    -------
+    >>> from .cases import FACTOR_CASES
+    >>> from .types import Factor
+    >>> converter = FactorConverter(FACTOR_CASES)
+    >>> converter.get_text(12, 'I', Factor(1_000_000))
+    'миллионами'
+    >>> converter.get_text(1, 'P', Factor(1_000))
+    'тысяче'
+
+    """
 
     def __init__(
         self,
@@ -109,8 +168,26 @@ class FactorConverter(FactorConverterABC):
         """Construct the converter."""
         self._factor_cases = factor_cases
 
+    @override
     def get_text(self, number: int, case: CaseType, factor: Factor) -> str:
-        """Get the number period numeral."""
+        """Get the number factor numeral.
+
+        Parameters
+        ----------
+        number : `int`
+            The number that comes before the factor.
+            Determines the declination of the factor.
+        case : `CaseType`
+            An abbreviation that determines the case of a declension.
+        factor: `Factor`
+            The factor enumeration instance.
+
+        Returns
+        -------
+        `str`
+            Numeral. The textual representation of the factor.
+
+        """
         case_group = CaseGroup.from_number(number)
         cases = self._factor_cases[factor][case_group]
         return getattr(cases, CASES[case])  # type: ignore[no-any-return]
@@ -136,26 +213,29 @@ def convert_number_(
     while remaining:
         # The number is determines by parts
         # that are multiples of a thousand.
-        digits = remaining % Factor.THOUSANDS
-        remaining //= Factor.THOUSANDS
-
-        if digits > 0:
+        if number_part := remaining % Factor.THOUSANDS:
             factor = Factor(Factor.THOUSANDS**factor_exponent)
+
+            # Factors of a number are converted separately.
+            if factor >= Factor.THOUSANDS:
+                factor_part = factor_converter.get_text(
+                    number_part,
+                    case,
+                    factor,
+                )
+                parts.append(factor_part)
 
             numeral_part = get_numeral(
                 number_converter,
-                digits,
+                number_part,
                 # The factor determines the gender of the multiplicand.
                 gender if factor < Factor.THOUSANDS else factor.gender,
                 case,
             )
-            parts.insert(0, numeral_part)
+            parts.append(numeral_part)
 
-            # Factors of a number are converted separately.
-            if factor >= Factor.THOUSANDS:
-                factor_text = factor_converter.get_text(digits, case, factor)
-                parts.insert(1, factor_text)
-
+        remaining //= Factor.THOUSANDS
         factor_exponent += 1
 
+    parts.reverse()
     return ' '.join(parts)
