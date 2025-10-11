@@ -1,11 +1,7 @@
 """Converting an integer to numeral."""
 
 from .base import FactorConverterABC, NumberConverterABC
-from .types import (
-    CaseType,
-    Factor,
-    GenderType,
-)
+from .types import CaseType, Factor, GenderType
 
 MAX_NUMBER = 999_999_999_999
 
@@ -41,35 +37,29 @@ def convert_number_(
         return number_converter.get_numeral(0, gender, case)
 
     remaining = number
+    number_part_gender = gender
     factor_exponent = 0
     parts: list[str] = []
 
     while remaining:
-        # The number is determines by parts
-        # that are multiples of a thousand.
-        if number_part := remaining % Factor.THOUSANDS:
-            factor = Factor(Factor.THOUSANDS**factor_exponent)
+        number_part = remaining % Factor.THOUSANDS
+        remaining //= Factor.THOUSANDS
+        factor = Factor(Factor.THOUSANDS**factor_exponent)
 
-            # Factor of a number part and number part
-            # are converted separately.
-            if factor >= Factor.THOUSANDS:
-                factor_part = factor_converter.get_text(
-                    number_part,
-                    case,
-                    factor,
-                )
-                parts.append(factor_part)
+        if factor >= Factor.THOUSANDS and number_part:
+            parts.append(factor_converter.get_text(number_part, case, factor))
 
-            # The factor determines the gender
-            # of the preceding part of the number.
+            # The factor determines the gender of the number part.
+            number_part_gender = factor.gender
+
+        if number_part:
             numeral_part = number_converter.get_text(
                 number_part,
-                gender if factor < Factor.THOUSANDS else factor.gender,
+                number_part_gender,
                 case,
             )
             parts.append(numeral_part)
 
-        remaining //= Factor.THOUSANDS
         factor_exponent += 1
 
     parts.reverse()
