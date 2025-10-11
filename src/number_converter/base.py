@@ -9,13 +9,22 @@ class NumberConverterABC(ABC):
     """The converter of integer to numeral."""
 
     @abstractmethod
-    def get_text(
+    def get_numeral(
         self,
         case_number: int,
         gender: GenderType,
         case: CaseType,
     ) -> str:
         """Get the text representation of number."""
+
+    @abstractmethod
+    def get_text(
+        self,
+        number: int,
+        gender: GenderType,
+        case: CaseType,
+    ) -> str:
+        """Get numeral in the thousand factor."""
 
 
 class FactorConverterABC(ABC):

@@ -5,7 +5,8 @@ __all__ = ['convert_number']
 from functools import partial
 
 from .cases import FACTOR_CASES, NUMERAL_CASES
-from .main import FactorConverter, NumberConverter, convert_number_
+from .converters import FactorConverter, NumberConverter
+from .main import convert_number_
 
 convert_number = partial(
     convert_number_,
