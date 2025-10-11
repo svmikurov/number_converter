@@ -35,7 +35,7 @@ def convert_number_(
     validate_number(number)
 
     # The number zero is converted separately.
-    # The other numbers are separated by taking the
+    # The other number parts are separated by taking the
     # remainder from the division, which may also be zero.
     if number == 0:
         return number_converter.get_numeral(0, gender, case)
@@ -50,7 +50,8 @@ def convert_number_(
         if number_part := remaining % Factor.THOUSANDS:
             factor = Factor(Factor.THOUSANDS**factor_exponent)
 
-            # Factors of a number are converted separately.
+            # Factor of a number part and number part
+            # are converted separately.
             if factor >= Factor.THOUSANDS:
                 factor_part = factor_converter.get_text(
                     number_part,
@@ -59,9 +60,10 @@ def convert_number_(
                 )
                 parts.append(factor_part)
 
+            # The factor determines the gender
+            # of the preceding part of the number.
             numeral_part = number_converter.get_text(
                 number_part,
-                # The factor determines the gender of the multiplicand.
                 gender if factor < Factor.THOUSANDS else factor.gender,
                 case,
             )

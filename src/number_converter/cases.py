@@ -12,7 +12,7 @@ HUNDREDS_ENDINGS = Case(
     'сот', 'стами', 'стах',
 )
 
-PRIME_CASES: dict[int, Case] = {
+NUMERAL_CASES: dict[int, Case] = {
     0: Case(
         'ноль', 'ноля', 'нолю',
         'ноль', 'нолем', 'ноле',
@@ -134,29 +134,6 @@ PRIME_CASES: dict[int, Case] = {
         'четыреста', 'четырьмястами', 'четырёхстах',
     ),
 }
-
-
-def create_complex(number: int, endings: Case) -> Case:
-    """Create the declension of a complex numeral."""
-    return Case(
-        str(PRIME_CASES[number].nominative) + str(endings.nominative),
-        str(PRIME_CASES[number].genitive) + str(endings.genitive),
-        str(PRIME_CASES[number].dative) + str(endings.dative),
-        str(PRIME_CASES[number].accusative) + str(endings.accusative),
-        str(PRIME_CASES[number].instrumental) + str(endings.instrumental),
-        str(PRIME_CASES[number].prepositional) + str(endings.prepositional),
-    )
-
-
-TENS_CASES: dict[int, Case] = {
-    50: create_complex(5, TENS_ENDINGS),
-    60: create_complex(6, TENS_ENDINGS),
-    70: create_complex(7, TENS_ENDINGS),
-    80: create_complex(8, TENS_ENDINGS),
-}
-
-
-NUMERAL_CASES = PRIME_CASES | TENS_CASES
 
 
 FACTOR_CASES: dict[Factor, dict[CaseGroup, Case]] = {
