@@ -121,29 +121,6 @@ PRIME_CASES: dict[int, Case] = {
         'сто', 'ста', 'ста',
         'сто', 'ста', 'ста',
     ),
-}
-
-
-def _create_complex(number: int, endings: Case) -> Case:
-    """Create the declension of a complex numeral."""
-    return Case(
-        str(PRIME_CASES[number].nominative) + str(endings.nominative),
-        str(PRIME_CASES[number].genitive) + str(endings.genitive),
-        str(PRIME_CASES[number].dative) + str(endings.dative),
-        str(PRIME_CASES[number].accusative) + str(endings.accusative),
-        str(PRIME_CASES[number].instrumental) + str(endings.instrumental),
-        str(PRIME_CASES[number].prepositional) + str(endings.prepositional),
-    )
-
-
-TENS_CASES: dict[int, Case] = {
-    50: _create_complex(5, TENS_ENDINGS),
-    60: _create_complex(6, TENS_ENDINGS),
-    70: _create_complex(7, TENS_ENDINGS),
-    80: _create_complex(8, TENS_ENDINGS),
-}
-
-HUNDREDS_CASES: dict[int, Case] = {
     200: Case(
         'двести', 'двухсот', 'двумстам',
         'двести', 'двумястами', 'двухстах',
@@ -156,14 +133,31 @@ HUNDREDS_CASES: dict[int, Case] = {
         'четыреста', 'четырёхсот', 'четырёмстам',
         'четыреста', 'четырьмястами', 'четырёхстах',
     ),
-    500: _create_complex(5, HUNDREDS_ENDINGS),
-    600: _create_complex(6, HUNDREDS_ENDINGS),
-    700: _create_complex(7, HUNDREDS_ENDINGS),
-    800: _create_complex(8, HUNDREDS_ENDINGS),
-    900: _create_complex(9, HUNDREDS_ENDINGS),
 }
 
-NUMERAL_CASES = PRIME_CASES | TENS_CASES | HUNDREDS_CASES
+
+def create_complex(number: int, endings: Case) -> Case:
+    """Create the declension of a complex numeral."""
+    return Case(
+        str(PRIME_CASES[number].nominative) + str(endings.nominative),
+        str(PRIME_CASES[number].genitive) + str(endings.genitive),
+        str(PRIME_CASES[number].dative) + str(endings.dative),
+        str(PRIME_CASES[number].accusative) + str(endings.accusative),
+        str(PRIME_CASES[number].instrumental) + str(endings.instrumental),
+        str(PRIME_CASES[number].prepositional) + str(endings.prepositional),
+    )
+
+
+TENS_CASES: dict[int, Case] = {
+    50: create_complex(5, TENS_ENDINGS),
+    60: create_complex(6, TENS_ENDINGS),
+    70: create_complex(7, TENS_ENDINGS),
+    80: create_complex(8, TENS_ENDINGS),
+}
+
+
+NUMERAL_CASES = PRIME_CASES | TENS_CASES
+
 
 FACTOR_CASES: dict[Factor, dict[CaseGroup, Case]] = {
     Factor.THOUSANDS: {

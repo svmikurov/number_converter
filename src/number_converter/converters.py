@@ -3,6 +3,7 @@
 from typing import override
 
 from .base import FactorConverterABC, NumberConverterABC
+from .cases import HUNDREDS_ENDINGS
 from .types import (
     CASES,
     GENDERS,
@@ -68,15 +69,42 @@ class NumberConverter(NumberConverterABC):
             cases = self._numeral_cases[case_number]
         except KeyError as e:
             raise ValueError(
-                f'Got unexpected case number, '
+                f'Got unexpected case number: {case_number}, '
                 f'use {sorted(self._numeral_cases)}'
             ) from e
 
         case_obj: Gender | str = getattr(cases, CASES[case])
+
         try:
             return getattr(case_obj, GENDERS[gender])  # type: ignore[no-any-return]
         except AttributeError:
             return case_obj  # type: ignore[return-value]
+
+    def get_hundreds_numeral(
+        self,
+        base_number: int,
+        gender: GenderType,
+        case: CaseType,
+    ) -> str:
+        """Get hundreds numeral."""
+        # Hundreds numerals 100, ..., 400 have a text definition
+        # as grammatical rule exceptions.
+        if base_number in {1, 2, 3, 4}:
+            hundreds = base_number * Factor.HUNDREDS
+            return self.get_numeral(hundreds, gender, case)
+
+        # Hundreds numerals 500, ..., 900 are created dynamically
+        # via grammatical rule.
+        elif base_number in {5, 6, 7, 8, 9}:
+            numeral_base = self.get_numeral(base_number, gender, case)
+            numeral_ending = getattr(HUNDREDS_ENDINGS, CASES[case])
+            return numeral_base + str(numeral_ending)
+
+        else:
+            raise ValueError(
+                f'Hundreds base number must be between 1 and 9, '
+                f'got {base_number}'
+            )
 
     @override
     def get_text(
@@ -100,23 +128,22 @@ class NumberConverter(NumberConverterABC):
         numerals: list[str] = []
 
         # The hundreds are converted separately.
-        if hundreds := number // Factor.HUNDREDS:
-            hundreds_part = hundreds * Factor.HUNDREDS
-            numeral = self.get_numeral(hundreds_part, gender, case)
-            numerals.append(numeral)
+        if hundreds_base_number := number // Factor.HUNDREDS:
+            numerals.append(
+                self.get_hundreds_numeral(hundreds_base_number, gender, case)
+            )
 
-        if tens := number // Factor.TENS % LAST_DIGIT_DIVISOR:
-            if tens == 1:
-                # The numbers 10, ..., 19 are converted separately.
-                tens_part = number % Factor.HUNDREDS
-                numeral = self.get_numeral(tens_part, gender, case)
-                numerals.append(numeral)
+        if tens_base_number := number // Factor.TENS % LAST_DIGIT_DIVISOR:
+            if tens_base_number == 1:
+                # Tens numerals 10, ..., 19 have a text definition
+                # as grammatical rule exceptions.
+                tens = number % Factor.HUNDREDS
+                numerals.append(self.get_numeral(tens, gender, case))
                 return ' '.join(numerals)
             else:
                 # The tens 20, 30, ..., 90 are converted separately.
-                tens_part = tens * Factor.TENS
-                numeral = self.get_numeral(tens_part, gender, case)
-                numerals.append(numeral)
+                tens = tens_base_number * Factor.TENS
+                numerals.append(self.get_numeral(tens, gender, case))
 
         # The units are converted separately.
         if units := number % LAST_DIGIT_DIVISOR:
