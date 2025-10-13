@@ -38,3 +38,19 @@ def test_number_validation(
     """Test unexpected number value."""
     with pytest.raises(ValueError):
         convert_number(number, gender, case)
+
+
+@pytest.mark.parametrize(
+    'number, gender, case',
+    [
+        ('not integer', 'F', 'N'),
+    ],
+)
+def test_number_type(
+    number: str,
+    gender: GenderType,
+    case: CaseType,
+) -> None:
+    """Test unexpected number value."""
+    with pytest.raises(TypeError):
+        convert_number(number, gender, case)  # type: ignore[arg-type]
