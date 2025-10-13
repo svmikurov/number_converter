@@ -1,4 +1,4 @@
-"""Library types."""
+"""Type definitions for number conversion: genders, cases, factors."""
 
 from enum import Enum
 from typing import Literal, NamedTuple
@@ -67,7 +67,7 @@ class Factor(int, Enum):
 
 
 class CaseGroup(Enum):
-    """Enumeration of grammatical cases.
+    """Enumeration of grammatical case groups.
 
     Enumerations contain the last digits of the number,
     which affect the declension.
@@ -83,7 +83,14 @@ class CaseGroup(Enum):
 
     @classmethod
     def from_number(cls, number: int) -> 'CaseGroup':
-        """Get case group."""
+        """Get case group.
+
+        Parameters
+        ----------
+        number : `int`
+            The number for which the case group is determined.
+
+        """
         tens = number % Factor.HUNDREDS
         unit = number % Factor.TENS
 

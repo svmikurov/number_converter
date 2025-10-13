@@ -27,7 +27,34 @@ def convert_number_(
     number_converter: NumberConverterABC,
     factor_converter: FactorConverterABC,
 ) -> str:
-    """Return the word representation of number."""
+    """Convert an integer to a string representation.
+
+    Parameters
+    ----------
+    number : `int`
+        The number that will be converted into a numeral.
+    gender : `GenderType`
+        Grammatical gender of a numeral.
+    case : `CaseType`
+        Case of the numeral.
+    number_converter : `NumberConverterABC`
+        A number converter of number in the range up to 999.
+    factor_converter : `FactorConverterABC`
+        A number factor converter of number in the range up to billion.
+
+    Returns
+    -------
+    `str`
+        The string representation of integer.
+
+    Raises
+    ------
+    TypeError
+        If the number is not an integer type.
+    ValueError
+        If the number is not non-negative or not less than a billion.
+
+    """
     validate_number(number)
 
     # The number zero is converted separately.
@@ -49,7 +76,7 @@ def convert_number_(
         if factor >= Factor.THOUSANDS and number_part:
             parts.append(factor_converter.get_text(number_part, case, factor))
 
-            # The factor determines the gender of the number part.
+            # The factor determines the gender of a part of a number.
             number_part_gender = factor.gender
 
         if number_part:

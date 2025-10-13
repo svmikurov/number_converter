@@ -1,4 +1,4 @@
-"""To numeral a converters."""
+"""Numeral converters."""
 
 from typing import override
 
@@ -19,7 +19,15 @@ LAST_DIGIT_DIVISOR = 10
 
 
 class NumberConverter(NumberConverterABC):
-    """The converter of integer to numeral."""
+    """The converter of integer to numeral.
+
+    Parameters
+    ----------
+    numeral_cases : `dict[int, Case]`
+        Mapping of numbers with their string representation,
+        which has a special declension.
+
+    """
 
     def __init__(self, numeral_cases: dict[int, Case]) -> None:
         """Construct the converter."""
@@ -32,14 +40,12 @@ class NumberConverter(NumberConverterABC):
         gender: GenderType,
         case: CaseType,
     ) -> str:
-        """Get the text representation of number.
-
-        Applies only with numbers that have a specific declension rule.
+        """Get a text representation of number with special declension.
 
         Parameters
         ----------
         case_number : `int`
-            A number that has a specific declension rule.
+            A number that has a special declension.
         gender : `GenderType`
             An abbreviation that determines the gender of a declension.
         case : `CaseType`
@@ -53,7 +59,7 @@ class NumberConverter(NumberConverterABC):
         Raises
         ------
         ValueError
-            If case number has no a specific declension rule.
+            If case number has no a special declension.
 
         Example
         -------
@@ -89,12 +95,33 @@ class NumberConverter(NumberConverterABC):
     ) -> str:
         """Get numeral in the thousand factor.
 
+        Parameters
+        ----------
+        number : `int`
+            The number that will be converted into a numeral.
+        gender : `GenderType`
+            Grammatical gender of a numeral.
+        case : `CaseType`
+            Case of the numeral.
+
+        Returns
+        -------
+        `str`
+            The string representation of integer.
+
+        Raises
+        ------
+        ValueError
+            If the number is not non-negative
+            or not less than a billion.
+
         >>> from .cases import NUMERAL_CASES
         >>> converter = NumberConverter(NUMERAL_CASES)
         >>> converter.get_text(31, 'M', 'G')
         'тридцати одного'
         >>> converter.get_text(122, 'N', 'I')
         'ста двадцатью двумя'
+
         """
         if not (0 < number <= 999):
             raise ValueError(f'Number must be between 1 and 999, got {number}')
@@ -145,12 +172,12 @@ class NumberConverter(NumberConverterABC):
 
 
 class FactorConverter(FactorConverterABC):
-    """The converter of number period to numeral.
+    """The converter of number factor to numeral.
 
     Attributes
     ----------
     factor_cases : `dict[Factor, dict[CaseGroup, Case]]`
-        Mapping of factor enumeration instance with case groups.
+        Mapping of factor enumeration instance with factor case groups.
 
     """
 
@@ -163,7 +190,7 @@ class FactorConverter(FactorConverterABC):
 
     @override
     def get_text(self, number: int, case: CaseType, factor: Factor) -> str:
-        """Get the number factor numeral.
+        """Get the numeral for number factor.
 
         Parameters
         ----------
@@ -171,9 +198,9 @@ class FactorConverter(FactorConverterABC):
             The number that comes before the factor.
             Determines the declination of the factor.
         case : `CaseType`
-            An abbreviation that determines the case of a declension.
+            Grammatical case for the factor.
         factor: `Factor`
-            The factor enumeration instance.
+            The factor to convert.
 
         Returns
         -------

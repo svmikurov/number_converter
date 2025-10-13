@@ -1,4 +1,4 @@
-"""Mapping of number with it text representation."""
+"""Mapping of numbers to their text representations."""
 
 from .types import Case, CaseGroup, Factor, Gender
 

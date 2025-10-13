@@ -1,4 +1,4 @@
-"""Abstract Base Classes."""
+"""Abstract base classes for number conversion components."""
 
 from abc import ABC, abstractmethod
 

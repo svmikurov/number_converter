@@ -1,4 +1,4 @@
-"""Test the convert to numerals."""
+"""Test number conversion to Russian numerals."""
 
 import pytest
 
