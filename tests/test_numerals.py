@@ -79,6 +79,8 @@ MILLION_FACTOR = [
     (47_000_000, HAVE_NO_GENDER, 'N', 'сорок семь миллионов'),
     (48_000_000, HAVE_NO_GENDER, 'N', 'сорок восемь миллионов'),
     (49_000_000, HAVE_NO_GENDER, 'N', 'сорок девять миллионов'),
+]
+BILLION_FACTOR = [
     (
         999_999_999_999,
         HAVE_NO_GENDER,
@@ -105,7 +107,7 @@ MILLION_FACTOR = [
 
 @pytest.mark.parametrize(
     'number, gender, case, numeral',
-    HUNDRED_FACTOR + THOUSAND_FACTOR + MILLION_FACTOR,
+    HUNDRED_FACTOR + THOUSAND_FACTOR + MILLION_FACTOR + BILLION_FACTOR,
 )
 def test_convert_numerals(
     number: int,
